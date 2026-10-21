@@ -302,7 +302,7 @@ class NoticeDialog(QDialog):
             lvl = payload.get('level', 'info')
             stamp = time.strftime('%H:%M:%S', time.localtime(wall))
             it = QListWidgetItem(f'{stamp}  [{names.get(lvl, lvl)}]  {payload.get("text", "")}')
-            it.setForeground(QColor(theme.ERROR if lvl == 'error' else theme.WARN if lvl == 'warn' else theme.TEXT))
+            it.setForeground(QColor(theme.ERROR if lvl == 'error' else '#8a5d0b' if lvl == 'warn' else theme.TEXT))
             it.setIcon(color_icon(theme.LEVEL_COLOR.get(lvl, theme.ACCENT), 10))
             self.list.addItem(it)
         if not notices:

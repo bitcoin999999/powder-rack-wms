@@ -1,57 +1,46 @@
-"""화면 색·글꼴·스타일시트 (터미널형 어두운 톤 — 검정 바탕, 호박색 강조, 숫자는 고정폭). 색은 여기 한 곳에서만 정한다."""
+"""화면 색·글꼴·스타일시트 (밝은 산업용 톤). 색은 여기 한 곳에서만 정한다."""
 from __future__ import annotations
 
 from PyQt5.QtGui import QColor
 
 # ---------------------------------------------------------------- 기본 색
-BG = '#000000'          # 창 바탕
-PANEL = '#0c0d0f'       # 패널
-PANEL_2 = '#15171a'     # 패널 안 칸 (요약 타일·AMR 카드·입력칸)
-BORDER = '#2a2e33'      # 패널 테두리
-BORDER_STRONG = '#3e444b'
-HEADER = '#000000'      # 상단 바
-HEADER_2 = '#17191c'    # 상단 바 안 구역
-ACCENT = '#ff9f1a'      # 강조 (호박색)
-ACCENT_DARK = '#ffb547' # 강조 글자 (어두운 바탕에서 읽히는 밝은 호박색)
-ACCENT_SOFT = '#33220a'
-WARN = '#ffd23f'        # 경고 (노랑)
-WARN_SOFT = '#2e2608'
-ERROR = '#ff5252'       # 오류
-ERROR_SOFT = '#3a1214'
-OK = '#3ccf6e'          # 정상·충전 (초록)
-TEXT = '#f0ede8'
-TEXT_2 = '#aaa49b'      # 보조 글자
-TEXT_3 = '#6f6a64'      # 흐린 글자
-CELL_BASE = '#08090a'   # 재종 칸 바탕을 섞는 바닥색
-EMPTY_CELL = '#121417'  # 빈 칸
-EMPTY_ID = '#5c636a'    # 빈 칸 안 칸 번호 (흐리지만 읽히게)
-RESERVED_CELL = '#101317'
-CELL_SUB = '#c9c3b9'    # 재종 칸 둘째 줄
-RESIDUAL = '#ffd23f'    # 잔량 박스 글자
-ROW_ALT = '#111316'
-SELECT = '#3a2608'
-SELECT_OUTLINE = '#ffffff'
-GRID = '#1b1e22'        # 셀 지도 바닥 격자
-LANE = '#24282c'        # 셀 지도 통로
-MUTED_FILL = '#1a1d21'  # 셀 지도 적재대·컨베이어 몸체
-NODE = '#5d646b'
-NODE_2 = '#4a5057'
+BG = '#eef2f4'          # 창 바탕
+PANEL = '#ffffff'       # 패널
+BORDER = '#d5dde2'      # 패널 테두리
+BORDER_STRONG = '#b9c6ce'
+HEADER = '#18303d'      # 상단 바 (짙은 남색)
+HEADER_2 = '#21414f'    # 상단 바 안 구역
+ACCENT = '#1da994'      # 강조 (청록)
+ACCENT_DARK = '#15806f'
+ACCENT_SOFT = '#d6f1ec'
+WARN = '#d2a450'        # 경고 (호박색)
+WARN_SOFT = '#f8eed9'
+ERROR = '#d64545'       # 오류
+ERROR_SOFT = '#fbe3e3'
+TEXT = '#1d2a31'
+TEXT_2 = '#5c6b73'      # 보조 글자
+TEXT_3 = '#8a979e'      # 흐린 글자
+EMPTY_CELL = '#e3e8eb'  # 빈 칸
+EMPTY_ID = '#7d8a92'    # 빈 칸 안 칸 번호 (흐리지만 읽히게, 대비 2.9:1)
+CELL_SUB = '#46555d'    # 재종 색 칸 안 둘째 줄 (짙은 재종 바탕에서도 대비 4.8:1 이상)
+RESIDUAL = '#704b06'    # 잔량 박스 글자 (재종 바탕에서 대비 4.8:1 이상)
+ROW_ALT = '#f7f9fa'
+SELECT = '#cfeee8'
 
 FONT = 'Malgun Gothic'
-MONO = 'Consolas'       # 숫자·코드 (한글은 맑은 고딕으로 대체 표시)
 
 # ISO 513 분류 색 (재종 색과 같은 계열)
-ISO_COLOR = {'P': '#3d84e6', 'M': '#e6b000', 'K': '#e04848', 'N': '#36b25a', 'S': '#d8722a', 'H': '#8a9098'}
+ISO_COLOR = {'P': '#2f74d6', 'M': '#d9a400', 'K': '#d64545', 'N': '#2e9d4e', 'S': '#c8641e', 'H': '#7a7f87'}
 
 # AMR 모드 색 (미니맵·카드)
 MODE_COLOR = {
-    'IDLE': '#7d858c', 'MOVING': ACCENT, 'LOADING': '#3d8bfd', 'UNLOADING': '#3d8bfd', 'WAITING': WARN,
-    'CHARGING': OK, 'PAUSED': WARN, 'ERROR': ERROR, 'OFFLINE': '#4f555b',
+    'IDLE': '#6b7d87', 'MOVING': ACCENT, 'LOADING': '#2f74d6', 'UNLOADING': '#2f74d6', 'WAITING': WARN,
+    'CHARGING': '#2e9d4e', 'PAUSED': WARN, 'ERROR': ERROR, 'OFFLINE': '#a0a8ad',
 }
 LEVEL_COLOR = {'info': ACCENT, 'warn': WARN, 'error': ERROR}
-ORDER_STATE_COLOR = {'QUEUED': TEXT_2, 'ASSIGNED': '#3d8bfd', 'RUNNING': ACCENT_DARK, 'DONE': TEXT_3,
-                     'FAILED': ERROR, 'CANCELLED': '#c99a3c'}
-SLOT_STATE_COLOR = {'EMPTY': '#6f6a64', 'RESERVED': ACCENT, 'OCCUPIED': '#3d84e6', 'BLOCKED': '#8a9098'}
+ORDER_STATE_COLOR = {'QUEUED': TEXT_2, 'ASSIGNED': '#2f74d6', 'RUNNING': ACCENT_DARK, 'DONE': TEXT_3,
+                     'FAILED': ERROR, 'CANCELLED': '#a07a2c'}
+SLOT_STATE_COLOR = {'EMPTY': '#8a979e', 'RESERVED': ACCENT, 'OCCUPIED': '#2f74d6', 'BLOCKED': '#7a7f87'}
 
 
 def qc(hex_color: str, alpha: int | None = None) -> QColor:
@@ -72,149 +61,139 @@ def mix(a: str | QColor, b: str | QColor, t: float) -> QColor:
 
 
 def tint(hex_color: str, amount: float = 0.74) -> QColor:
-    """재종 색을 어두운 바닥색 쪽으로 낮춘 칸 바탕 (밝은 글자가 잘 읽히게)."""
-    return mix(qc(hex_color), QColor(CELL_BASE), amount)
+    """재종 색을 흰색 쪽으로 밝힌 칸 바탕 (글자가 잘 읽히게)."""
+    return mix(qc(hex_color), QColor('#ffffff'), amount)
 
 
 def text_on(color: QColor) -> QColor:
-    """배경 위에 읽히는 글자색 (흰색 / 검정)."""
+    """배경 위에 읽히는 글자색 (흰색 / 짙은 글자)."""
     lum = 0.299 * color.red() + 0.587 * color.green() + 0.114 * color.blue()
-    return QColor('#ffffff') if lum < 150 else QColor('#0b0c0d')
+    return QColor('#ffffff') if lum < 150 else QColor(TEXT)
 
 
 STYLESHEET = f"""
 QMainWindow, QDialog {{ background: {BG}; }}
 QWidget {{ color: {TEXT}; }}
-QToolTip {{ background: #1b1d20; color: {TEXT}; border: 1px solid {ACCENT}; padding: 6px 8px; }}
+QToolTip {{ background: {HEADER}; color: #ffffff; border: none; padding: 6px 8px; }}
 
-QFrame#Panel {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 2px; }}
-QLabel#PanelTitle {{ font-weight: bold; font-size: 11pt; color: {ACCENT_DARK}; }}
+QFrame#Panel {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 6px; }}
+QLabel#PanelTitle {{ font-weight: bold; font-size: 11pt; color: {TEXT}; }}
 QLabel#Muted {{ color: {TEXT_2}; }}
 QLabel#Faint {{ color: {TEXT_3}; }}
-QLabel#Big {{ font-size: 16pt; font-weight: bold; font-family: {MONO}; }}
+QLabel#Big {{ font-size: 16pt; font-weight: bold; }}
 QLabel#FieldName {{ color: {TEXT_2}; }}
 QLabel#FieldValue {{ color: {TEXT}; font-weight: bold; }}
 
 /* 상단 바 */
-QFrame#Header {{ background: {HEADER}; border: none; border-bottom: 1px solid {ACCENT}; }}
-QFrame#Header QLabel {{ color: {TEXT}; background: transparent; }}
-QLabel#AppTitle {{ font-size: 13pt; font-weight: bold; color: {ACCENT}; }}
-QLabel#ModeBadge {{ background: {HEADER_2}; color: {ACCENT_DARK}; border: 1px solid {ACCENT}; border-radius: 2px;
+QFrame#Header {{ background: {HEADER}; border: none; }}
+QFrame#Header QLabel {{ color: #ffffff; background: transparent; }}
+QLabel#AppTitle {{ font-size: 13pt; font-weight: bold; }}
+QLabel#ModeBadge {{ background: {HEADER_2}; color: #bfeee5; border: 1px solid {ACCENT}; border-radius: 10px;
                    padding: 2px 10px; font-size: 9pt; }}
-QLabel#KpiName {{ color: {TEXT_3}; font-size: 8pt; }}
-QLabel#KpiValue {{ color: {ACCENT_DARK}; font-size: 13pt; font-weight: bold; font-family: {MONO}; }}
-QLabel#KpiWarn {{ color: {ERROR}; font-size: 13pt; font-weight: bold; font-family: {MONO}; }}
-QFrame#HeaderSep {{ background: {BORDER}; border: none; }}
-QFrame#Header QToolButton {{ color: {TEXT_2}; background: transparent; border: 1px solid {BORDER_STRONG};
-                            padding: 3px 9px; font-weight: bold; font-family: {MONO}; }}
-QFrame#Header QToolButton:hover {{ background: {HEADER_2}; color: {TEXT}; }}
-QFrame#Header QToolButton:checked {{ background: {ACCENT}; color: #000000; border-color: {ACCENT}; }}
-QFrame#Header QToolButton#SegFirst {{ border-top-left-radius: 2px; border-bottom-left-radius: 2px; }}
-QFrame#Header QToolButton#SegLast {{ border-top-right-radius: 2px; border-bottom-right-radius: 2px; }}
-QFrame#Header QPushButton {{ color: {TEXT}; background: {HEADER_2}; border: 1px solid {BORDER_STRONG}; border-radius: 2px;
+QLabel#KpiName {{ color: #9fb4bf; font-size: 8pt; }}
+QLabel#KpiValue {{ color: #ffffff; font-size: 12pt; font-weight: bold; }}
+QLabel#KpiWarn {{ color: #ffd27a; font-size: 12pt; font-weight: bold; }}
+QFrame#HeaderSep {{ background: #34505e; border: none; }}
+QFrame#Header QToolButton {{ color: #dce8ee; background: transparent; border: 1px solid #47636f;
+                            padding: 3px 9px; font-weight: bold; }}
+QFrame#Header QToolButton:hover {{ background: {HEADER_2}; }}
+QFrame#Header QToolButton:checked {{ background: {ACCENT}; color: #ffffff; border-color: {ACCENT}; }}
+QFrame#Header QToolButton#SegFirst {{ border-top-left-radius: 4px; border-bottom-left-radius: 4px; }}
+QFrame#Header QToolButton#SegLast {{ border-top-right-radius: 4px; border-bottom-right-radius: 4px; }}
+QFrame#Header QPushButton {{ color: #ffffff; background: {HEADER_2}; border: 1px solid #47636f; border-radius: 4px;
                             padding: 4px 12px; font-weight: bold; }}
-QFrame#Header QPushButton:hover {{ border-color: {ACCENT}; }}
-QFrame#Header QPushButton:checked {{ background: {ACCENT}; border-color: {ACCENT}; color: #000000; }}
-QFrame#Header QPushButton#ObRunning:checked {{ background: {WARN}; border-color: {WARN}; color: #000000; }}
+QFrame#Header QPushButton:hover {{ background: #2a5163; }}
+QFrame#Header QPushButton:checked {{ background: {ACCENT}; border-color: {ACCENT}; }}
+QFrame#Header QPushButton#ObRunning:checked {{ background: {WARN}; border-color: {WARN}; color: {HEADER}; }}
 
 /* 버튼 */
-QPushButton {{ background: {PANEL_2}; border: 1px solid {BORDER_STRONG}; border-radius: 2px; padding: 4px 12px;
+QPushButton {{ background: #ffffff; border: 1px solid #c3ced5; border-radius: 4px; padding: 4px 12px;
               min-height: 20px; color: {TEXT}; }}
-QPushButton:hover {{ background: #1d2024; border-color: {ACCENT}; }}
-QPushButton:pressed {{ background: {ACCENT_SOFT}; }}
-QPushButton:disabled {{ color: #4f555b; background: #0f1113; border-color: #22262a; }}
-QPushButton[kind="primary"] {{ background: {ACCENT}; color: #000000; border-color: {ACCENT}; font-weight: bold; }}
+QPushButton:hover {{ background: #f2f7f8; border-color: {BORDER_STRONG}; }}
+QPushButton:pressed {{ background: #e2eaee; }}
+QPushButton:disabled {{ color: #a7b3ba; background: #f4f6f7; border-color: #dde3e7; }}
+QPushButton[kind="primary"] {{ background: {ACCENT}; color: #ffffff; border-color: {ACCENT}; font-weight: bold; }}
 QPushButton[kind="primary"]:hover {{ background: {ACCENT_DARK}; }}
-QPushButton[kind="primary"]:disabled {{ background: #4a3412; border-color: #4a3412; color: #8a7350; }}
-QPushButton[kind="danger"] {{ background: {ERROR}; color: #000000; border-color: {ERROR}; font-weight: bold; }}
-QPushButton[kind="danger"]:hover {{ background: #ff7a7a; }}
-QPushButton[kind="warn"] {{ background: {WARN_SOFT}; border-color: {WARN}; color: {WARN}; font-weight: bold; }}
-QPushButton[kind="warn"]:hover {{ background: #3d3210; }}
+QPushButton[kind="primary"]:disabled {{ background: #a9d9d0; border-color: #a9d9d0; color: #f4fbf9; }}
+QPushButton[kind="danger"] {{ background: {ERROR}; color: #ffffff; border-color: {ERROR}; font-weight: bold; }}
+QPushButton[kind="danger"]:hover {{ background: #b93636; }}
+QPushButton[kind="warn"] {{ background: {WARN_SOFT}; border-color: {WARN}; color: #6b4d12; font-weight: bold; }}
+QPushButton[kind="warn"]:hover {{ background: #f3e2bd; }}
 QPushButton[kind="flat"] {{ background: transparent; border: none; color: {ACCENT_DARK}; padding: 2px 6px; }}
 QPushButton[kind="flat"]:hover {{ text-decoration: underline; }}
-QPushButton[kind="chip"] {{ background: {PANEL_2}; border: 1px solid {BORDER}; border-radius: 2px; padding: 1px 8px;
-                           min-height: 16px; text-align: left; font-size: 9pt; font-family: {MONO}; }}
-QPushButton[kind="chip"]:hover {{ border-color: {ACCENT}; }}
-QPushButton[kind="chip"]:checked {{ border: 1px solid {ACCENT}; background: {ACCENT_SOFT}; color: {ACCENT_DARK}; }}
+QPushButton[kind="chip"] {{ background: #ffffff; border: 1px solid {BORDER}; border-radius: 10px; padding: 1px 8px;
+                           min-height: 16px; text-align: left; font-size: 9pt; }}
+QPushButton[kind="chip"]:hover {{ border-color: {ACCENT}; background: #f4fbfa; }}
+QPushButton[kind="chip"]:checked {{ border: 2px solid {HEADER}; background: #eef6f5; }}
 
 /* 입력 */
-QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{ background: {PANEL_2}; border: 1px solid {BORDER_STRONG};
-    border-radius: 2px; padding: 3px 6px; min-height: 20px; color: {TEXT};
-    selection-background-color: {ACCENT}; selection-color: #000000; }}
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{ background: #ffffff; border: 1px solid #c3ced5; border-radius: 4px;
+    padding: 3px 6px; min-height: 20px; selection-background-color: {ACCENT}; }}
 QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {{ border: 1px solid {ACCENT}; }}
-QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {{ background: #0f1113;
-    color: #4f555b; border-color: #22262a; }}
-QLineEdit#ScanEdit {{ font-size: 14pt; font-family: {MONO}; padding: 6px 10px; border: 2px solid {ACCENT};
-                     border-radius: 2px; background: #000000; color: {ACCENT_DARK}; }}
+QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {{ background: #f4f6f7; color: #9aa6ad; }}
+QLineEdit#ScanEdit {{ font-size: 14pt; padding: 6px 10px; border: 2px solid {ACCENT}; border-radius: 6px;
+                     background: #fbfefd; }}
 QComboBox {{ padding-right: 22px; }}
 QComboBox::drop-down {{ subcontrol-origin: padding; subcontrol-position: center right; width: 22px; border: none; }}
 QComboBox::down-arrow {{ image: url(rackui:down.png); width: 10px; height: 6px; }}
 QComboBox::down-arrow:disabled {{ image: url(rackui:down_off.png); }}
-QComboBox QAbstractItemView {{ background: {PANEL_2}; color: {TEXT}; border: 1px solid {ACCENT};
-                              selection-background-color: {SELECT}; selection-color: {ACCENT_DARK}; outline: none; }}
-QSpinBox, QDoubleSpinBox {{ padding-right: 22px; font-family: {MONO}; }}
+QComboBox QAbstractItemView {{ border: 1px solid {BORDER}; selection-background-color: {SELECT};
+                              selection-color: {TEXT}; outline: none; }}
+QSpinBox, QDoubleSpinBox {{ padding-right: 22px; }}
 QSpinBox::up-button, QDoubleSpinBox::up-button {{ subcontrol-origin: border; subcontrol-position: top right; width: 20px;
-    border: none; border-left: 1px solid {BORDER}; background: #1b1e22; }}
+    border: none; border-left: 1px solid #dde4e8; border-top-right-radius: 4px; background: #f5f8f9; }}
 QSpinBox::down-button, QDoubleSpinBox::down-button {{ subcontrol-origin: border; subcontrol-position: bottom right;
-    width: 20px; border: none; border-left: 1px solid {BORDER}; border-top: 1px solid {BORDER}; background: #1b1e22; }}
+    width: 20px; border: none; border-left: 1px solid #dde4e8; border-top: 1px solid #e8edf0;
+    border-bottom-right-radius: 4px; background: #f5f8f9; }}
 QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover,
 QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {{ background: {ACCENT_SOFT}; }}
 QSpinBox::up-arrow, QDoubleSpinBox::up-arrow {{ image: url(rackui:up.png); width: 8px; height: 5px; }}
 QSpinBox::down-arrow, QDoubleSpinBox::down-arrow {{ image: url(rackui:down_small.png); width: 8px; height: 5px; }}
 QSpinBox::up-arrow:disabled, QDoubleSpinBox::up-arrow:disabled {{ image: url(rackui:up_off.png); }}
 QSpinBox::down-arrow:disabled, QDoubleSpinBox::down-arrow:disabled {{ image: url(rackui:down_small_off.png); }}
-QCheckBox {{ spacing: 6px; color: {TEXT}; }}
-QCheckBox::indicator {{ width: 13px; height: 13px; border: 1px solid {BORDER_STRONG}; background: {PANEL_2}; }}
-QCheckBox::indicator:checked {{ background: {ACCENT}; border-color: {ACCENT}; }}
+QCheckBox {{ spacing: 6px; }}
 
 /* 표 */
-QTableView {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 0px; gridline-color: #1c1f23;
-             alternate-background-color: {ROW_ALT}; selection-background-color: {SELECT};
-             selection-color: {ACCENT_DARK}; font-family: {MONO}; }}
+QTableView {{ background: #ffffff; border: 1px solid {BORDER}; border-radius: 4px; gridline-color: #edf1f3;
+             alternate-background-color: {ROW_ALT}; selection-background-color: {SELECT}; selection-color: {TEXT}; }}
 QTableView::item {{ padding: 0px 4px; }}
-QHeaderView::section {{ background: #000000; color: {ACCENT_DARK}; border: none; border-bottom: 1px solid {ACCENT};
-                       border-right: 1px solid {BORDER}; padding: 4px 6px; font-weight: bold; }}
-QTableCornerButton::section {{ background: #000000; border: none; }}
+QHeaderView::section {{ background: #f1f4f6; color: {TEXT_2}; border: none; border-bottom: 1px solid {BORDER};
+                       border-right: 1px solid #e6ebee; padding: 4px 6px; font-weight: bold; }}
+QTableCornerButton::section {{ background: #f1f4f6; border: none; }}
 
 /* 탭 */
-QTabWidget::pane {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 0px; top: -1px; }}
-QTabBar::tab {{ background: #000000; color: {TEXT_2}; border: 1px solid {BORDER}; border-bottom: none;
-               padding: 6px 14px; margin-right: 2px; border-radius: 0px; }}
-QTabBar::tab:selected {{ background: {PANEL}; color: {ACCENT}; font-weight: bold; border-top: 2px solid {ACCENT}; }}
-QTabBar::tab:hover:!selected {{ color: {TEXT}; background: #121417; }}
+QTabWidget::pane {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 6px; top: -1px; }}
+QTabBar::tab {{ background: #e3e9ec; color: {TEXT_2}; border: 1px solid {BORDER}; border-bottom: none;
+               padding: 6px 14px; margin-right: 2px; border-top-left-radius: 5px; border-top-right-radius: 5px; }}
+QTabBar::tab:selected {{ background: {PANEL}; color: {TEXT}; font-weight: bold; border-top: 3px solid {ACCENT}; }}
+QTabBar::tab:hover:!selected {{ background: #edf2f4; }}
 
-QGroupBox {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 0px; margin-top: 12px;
+QGroupBox {{ background: #ffffff; border: 1px solid {BORDER}; border-radius: 6px; margin-top: 12px;
             padding: 10px 8px 8px 8px; font-weight: bold; color: {TEXT}; }}
-QGroupBox::title {{ subcontrol-origin: margin; left: 10px; padding: 0 4px; color: {ACCENT_DARK}; }}
+QGroupBox::title {{ subcontrol-origin: margin; left: 10px; padding: 0 4px; color: {TEXT_2}; }}
 
 QSplitter::handle {{ background: {BG}; }}
-QSplitter::handle:horizontal {{ width: 6px; }}
-QSplitter::handle:vertical {{ height: 6px; }}
+QSplitter::handle:horizontal {{ width: 8px; }}
+QSplitter::handle:vertical {{ height: 8px; }}
 
-QStatusBar {{ background: #000000; border-top: 1px solid {BORDER}; color: {TEXT}; }}
+QStatusBar {{ background: #ffffff; border-top: 1px solid {BORDER}; color: {TEXT}; }}
 QStatusBar::item {{ border: none; }}
 
-QProgressBar {{ background: #1b1e22; border: none; border-radius: 0px; height: 8px; text-align: center; }}
-QProgressBar::chunk {{ background: {OK}; border-radius: 0px; }}
+QProgressBar {{ background: #e6ecef; border: none; border-radius: 4px; height: 8px; text-align: center; }}
+QProgressBar::chunk {{ background: {ACCENT}; border-radius: 4px; }}
 QProgressBar[level="warn"]::chunk {{ background: {WARN}; }}
 QProgressBar[level="error"]::chunk {{ background: {ERROR}; }}
 
 QScrollArea {{ background: transparent; border: none; }}
-QScrollBar:vertical {{ background: #000000; width: 10px; margin: 0; }}
-QScrollBar::handle:vertical {{ background: #3a3f45; border-radius: 0px; min-height: 24px; margin: 2px; }}
-QScrollBar::handle:vertical:hover {{ background: {ACCENT}; }}
-QScrollBar:horizontal {{ background: #000000; height: 10px; margin: 0; }}
-QScrollBar::handle:horizontal {{ background: #3a3f45; border-radius: 0px; min-width: 24px; margin: 2px; }}
-QScrollBar::handle:horizontal:hover {{ background: {ACCENT}; }}
+QScrollBar:vertical {{ background: transparent; width: 10px; margin: 0; }}
+QScrollBar::handle:vertical {{ background: #c7d1d7; border-radius: 4px; min-height: 24px; margin: 2px; }}
+QScrollBar:horizontal {{ background: transparent; height: 10px; margin: 0; }}
+QScrollBar::handle:horizontal {{ background: #c7d1d7; border-radius: 4px; min-width: 24px; margin: 2px; }}
 QScrollBar::add-line, QScrollBar::sub-line {{ width: 0; height: 0; }}
 QScrollBar::add-page, QScrollBar::sub-page {{ background: transparent; }}
-QListWidget {{ background: {PANEL}; border: 1px solid {BORDER}; border-radius: 0px; font-family: {MONO}; }}
-QListWidget::item {{ padding: 4px 6px; border-bottom: 1px solid #1c1f23; }}
-QListWidget::item:selected {{ background: {SELECT}; color: {ACCENT_DARK}; }}
-QMessageBox {{ background: {PANEL}; }}
-QMessageBox QLabel {{ min-width: 280px; color: {TEXT}; }}
-QMenu {{ background: {PANEL_2}; color: {TEXT}; border: 1px solid {ACCENT}; }}
-QMenu::item:selected {{ background: {SELECT}; color: {ACCENT_DARK}; }}
+QListWidget {{ background: #ffffff; border: 1px solid {BORDER}; border-radius: 4px; }}
+QListWidget::item {{ padding: 4px 6px; border-bottom: 1px solid #eef2f4; }}
+QMessageBox QLabel {{ min-width: 280px; }}
 """
 
 
@@ -224,7 +203,7 @@ def _arrow_images(folder) -> None:
     from PyQt5.QtGui import QPainter, QPixmap, QPolygonF
     shapes = {'down': (10, 6, True), 'down_small': (8, 5, True), 'up': (8, 5, False)}
     for name, (w, h, down) in shapes.items():
-        for suffix, color in (('', TEXT_2), ('_off', '#4f555b')):
+        for suffix, color in (('', TEXT_2), ('_off', '#b9c3c9')):
             for scale, tag in ((1, ''), (2, '@2x')):
                 pm = QPixmap(w * scale, h * scale)
                 pm.fill(_Qt.transparent)
@@ -247,7 +226,7 @@ def install(app) -> None:
     import tempfile
     from pathlib import Path
     from PyQt5.QtCore import QDir
-    folder = Path(tempfile.gettempdir()) / 'rack-ui-arrows-dark'
+    folder = Path(tempfile.gettempdir()) / 'rackwms-ui'
     try:
         folder.mkdir(parents=True, exist_ok=True)
         if not (folder / 'down_small_off@2x.png').exists():

@@ -111,7 +111,7 @@ class MiniMap(QWidget):
         cfg = ctrl.inventory.layout.cfg
         model = self.win.rack.model
         W, H = self.width(), self.height()
-        p.fillRect(self.rect(), theme.qc(theme.PANEL))
+        p.fillRect(self.rect(), QColor('#ffffff'))
         wx0, wy0, wx1, wy1, conv_len = self._world()
         s = min((W - 12) / max(0.1, wx1 - wx0), (H - 12) / max(0.1, wy1 - wy0))
         ox = (W - (wx1 - wx0) * s) / 2 - wx0 * s
@@ -132,9 +132,9 @@ class MiniMap(QWidget):
         # 바닥 격자 (1 m)
         floor = rect(wx0 + 0.1, wy0 + 0.1, wx1 - 0.1, wy1 - 0.1)
         p.setPen(Qt.NoPen)
-        p.setBrush(theme.qc(theme.PANEL_2))
+        p.setBrush(QColor('#f6f8f9'))
         p.drawRoundedRect(floor, 6, 6)
-        p.setPen(QPen(theme.qc(theme.GRID), 1))
+        p.setPen(QPen(QColor('#eaeef1'), 1))
         gx = math.ceil(wx0)
         while gx < wx1:
             p.drawLine(pt(gx, wy0 + 0.1), pt(gx, wy1 - 0.1))
@@ -147,8 +147,8 @@ class MiniMap(QWidget):
         # 통로 (구간)
         nodes = topo.nodes
         seen = set()
-        lane = QPen(theme.qc(theme.LANE), max(4.0, 0.5 * s), Qt.SolidLine, Qt.RoundCap)
-        center = QPen(theme.qc(theme.BORDER_STRONG), 1.2, Qt.DashLine)
+        lane = QPen(QColor('#e1e7eb'), max(4.0, 0.5 * s), Qt.SolidLine, Qt.RoundCap)
+        center = QPen(QColor('#c3ced5'), 1.2, Qt.DashLine)
         center.setDashPattern([3, 3])
         edges = []
         for a in nodes:
@@ -169,10 +169,10 @@ class MiniMap(QWidget):
         length = cfg.columns * cfg.col_pitch_m
         half = cfg.depth_m / 2
         rack = rect(0, -half, length, half)
-        p.setPen(QPen(theme.qc(theme.TEXT_3), 1.2))
-        p.setBrush(theme.qc(theme.MUTED_FILL))
+        p.setPen(QPen(QColor('#8d9ba3'), 1.2))
+        p.setBrush(QColor('#e9edf0'))
         p.drawRect(rack)
-        p.setPen(QPen(theme.qc(theme.TEXT_3), 1))
+        p.setPen(QPen(QColor('#8d9ba3'), 1))
         p.drawLine(pt(0, 0), pt(length, 0))
         tiers = max(1, cfg.tiers)
         for face, sign in (('N', -1), ('S', 1)):
@@ -195,13 +195,13 @@ class MiniMap(QWidget):
                         p.setBrush(theme.qc(model.color(bx.grade)))
                     elif sl.state == SlotState.RESERVED:
                         p.setPen(QPen(theme.qc(theme.ERROR if (bx and bx.needs_check) else theme.ACCENT), 1.2))
-                        p.setBrush(theme.qc(theme.RESERVED_CELL))
+                        p.setBrush(QColor('#ffffff'))
                     elif sl.state == SlotState.BLOCKED:
                         p.setPen(Qt.NoPen)
-                        p.setBrush(theme.qc(theme.NODE_2))
+                        p.setBrush(QColor('#a9b3b9'))
                     else:
-                        p.setPen(QPen(theme.qc(theme.BORDER), 0.8))
-                        p.setBrush(theme.qc(theme.EMPTY_CELL))
+                        p.setPen(QPen(QColor('#d3dade'), 0.8))
+                        p.setBrush(QColor('#f7f9fa'))
                     p.drawRect(r)
         p.setFont(bold)
         p.setPen(theme.qc(theme.TEXT_2))
@@ -210,7 +210,7 @@ class MiniMap(QWidget):
 
         # 통로 이름
         p.setFont(small)
-        p.setPen(theme.qc(theme.TEXT_3))
+        p.setPen(QColor('#93a3ab'))
         sfm = QFontMetrics(small)
         fixed: list[QRectF] = []           # 고정 글자 자리 (AMR 이름표가 가리지 않게)
         yn = nodes['N01'].y if 'N01' in nodes else -half - 0.6
@@ -226,11 +226,11 @@ class MiniMap(QWidget):
             c = pt(n.x, n.y)
             if n.kind == 'aisle':
                 p.setPen(Qt.NoPen)
-                p.setBrush(theme.qc(theme.NODE))
+                p.setBrush(QColor('#9fb0b9'))
                 p.drawEllipse(c, 2.4, 2.4)
             elif n.kind == 'junction':
                 p.setPen(Qt.NoPen)
-                p.setBrush(theme.qc(theme.NODE_2))
+                p.setBrush(QColor('#b8c4ca'))
                 p.drawEllipse(c, 1.8, 1.8)
         # 충전기·주차
         for n in nodes.values():
@@ -238,14 +238,14 @@ class MiniMap(QWidget):
                 continue
             r = rect(n.x - 0.32, n.y - 0.26, n.x + 0.32, n.y + 0.26)
             if n.kind == 'charger':
-                p.setPen(QPen(theme.qc(theme.WARN), 1.2))
+                p.setPen(QPen(theme.qc('#a8822f'), 1.2))
                 p.setBrush(theme.qc(theme.WARN_SOFT))
                 text = '충전'
             else:
-                pen = QPen(theme.qc(theme.TEXT_3), 1, Qt.DashLine)
+                pen = QPen(QColor('#8d9ba3'), 1, Qt.DashLine)
                 pen.setDashPattern([3, 2])
                 p.setPen(pen)
-                p.setBrush(theme.qc(theme.PANEL_2))
+                p.setBrush(QColor('#ffffff'))
                 text = 'P' + n.id[4:]
             p.drawRoundedRect(r, 3, 3)
             fixed.append(QRectF(r))
@@ -254,7 +254,7 @@ class MiniMap(QWidget):
                 f.setPixelSize(f.pixelSize() - 1)
             if QFontMetrics(f).horizontalAdvance(text) <= r.width() - 1:
                 p.setFont(f)
-                p.setPen(theme.qc(theme.WARN) if n.kind == 'charger' else theme.qc(theme.TEXT_2))
+                p.setPen(theme.qc('#7a5b14') if n.kind == 'charger' else theme.qc(theme.TEXT_2))
                 p.drawText(r, Qt.AlignCenter, text)
 
         # 도크 + 컨베이어
@@ -263,10 +263,10 @@ class MiniMap(QWidget):
             conv = ctrl.inventory.conveyor()
             cap = int(ctrl.config.conveyor_capacity)
             cr = rect(dock.x - 0.32 - conv_len, dock.y - 0.24, dock.x - 0.32, dock.y + 0.24)
-            p.setPen(QPen(theme.qc(theme.TEXT_3), 1))
-            p.setBrush(theme.qc(theme.MUTED_FILL))
+            p.setPen(QPen(QColor('#8d9ba3'), 1))
+            p.setBrush(QColor('#e4e9ec'))
             p.drawRoundedRect(cr, 3, 3)
-            p.setPen(QPen(theme.qc(theme.BORDER), 1))
+            p.setPen(QPen(QColor('#cfd8dd'), 1))
             x = cr.left() + 4
             while x < cr.right() - 2:
                 p.drawLine(QPointF(x, cr.top() + 2), QPointF(x, cr.bottom() - 2))
@@ -275,7 +275,7 @@ class MiniMap(QWidget):
                 b = conv[i]
                 bx1 = dock.x - 0.32 - 0.1 - i * self.BOX_M
                 br = rect(bx1 - self.BOX_M + 0.06, dock.y - 0.18, bx1, dock.y + 0.18)
-                p.setPen(QPen(theme.qc(theme.ERROR), 1.6) if b.needs_check else QPen(theme.qc(theme.BG), 1))
+                p.setPen(QPen(theme.qc(theme.ERROR), 1.6) if b.needs_check else QPen(QColor('#ffffff'), 1))
                 p.setBrush(theme.qc(model.color(b.grade)))
                 p.drawRoundedRect(br, 2, 2)
             p.setFont(small)
@@ -295,7 +295,7 @@ class MiniMap(QWidget):
             dr = rect(dock.x - 0.3, dock.y - 0.26, dock.x + 0.3, dock.y + 0.26)
             owner = ctrl.fleet.zone_owner('DOCK')
             p.setPen(QPen(theme.qc(theme.ACCENT_DARK), 1.4))
-            p.setBrush(theme.qc(theme.ACCENT_SOFT if not owner else '#5a3a0c'))
+            p.setBrush(theme.qc(theme.ACCENT_SOFT if not owner else '#bfe9e1'))
             p.drawRoundedRect(dr, 3, 3)
             p.setFont(bold)
             p.setPen(theme.qc(theme.ACCENT_DARK))
@@ -418,7 +418,7 @@ class MiniMap(QWidget):
             tag = QRectF(max(2, min(self.width() - tw - 2, c.x() - tw / 2)), max(2, above), tw, th)
         taken.append(tag)
         p.setPen(Qt.NoPen)
-        p.setBrush(QColor(23, 25, 28, 235))
+        p.setBrush(QColor(24, 48, 61, 225))
         p.drawRoundedRect(tag, 4, 4)
         p.setPen(QColor('#ffffff'))
         p.drawText(tag, Qt.AlignCenter, text)
@@ -434,7 +434,7 @@ class RobotCard(QFrame):
         super().__init__(parent)
         self.robot_id = robot_id
         self.setObjectName('Card')
-        self.setStyleSheet(f'QFrame#Card {{ background: {theme.PANEL_2}; border: 1px solid {theme.BORDER}; border-radius: 6px; }}')
+        self.setStyleSheet(f'QFrame#Card {{ background: #f7f9fa; border: 1px solid {theme.BORDER}; border-radius: 6px; }}')
         self.setFixedHeight(self.HEIGHT)
         lay = QVBoxLayout(self)
         lay.setContentsMargins(10, 5, 10, 5)

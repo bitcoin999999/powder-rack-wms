@@ -14,8 +14,8 @@ from .table import RowTable, Row
 from .util import age_s, ask, fmt_age, run_action, short_ts
 from .widgets import Chip, ElidedLabel, FlowLayout, Panel, Swatch, button, label
 
-STATE_CHIP = {'EMPTY': ('빈 칸', '#8a979e'), 'RESERVED': ('예약됨 · AMR', theme.ACCENT), 'OCCUPIED': ('적재됨', '#3d84e6'),
-              'BLOCKED': ('사용중지', '#8a9098')}
+STATE_CHIP = {'EMPTY': ('빈 칸', '#8a979e'), 'RESERVED': ('예약됨 · AMR', theme.ACCENT), 'OCCUPIED': ('적재됨', '#2f74d6'),
+              'BLOCKED': ('사용중지', '#6b747a')}
 
 
 class StatTile(QFrame):
@@ -24,14 +24,14 @@ class StatTile(QFrame):
     def __init__(self, name: str, parent: QWidget | None = None):
         super().__init__(parent)
         self.setObjectName('Tile')
-        self.setStyleSheet(f'QFrame#Tile {{ background: {theme.PANEL_2}; border: 1px solid {theme.BORDER}; border-radius: 2px; }}')
+        self.setStyleSheet(f'QFrame#Tile {{ background: #f5f8f9; border: 1px solid #e3e9ec; border-radius: 6px; }}')
         lay = QVBoxLayout(self)
         lay.setContentsMargins(10, 4, 10, 4)
         lay.setSpacing(0)
         row = QHBoxLayout()
         row.setSpacing(3)
         self.value = label('-', None)
-        self.value.setStyleSheet(f'font-size: 15pt; font-weight: bold; font-family: {theme.MONO};')
+        self.value.setStyleSheet('font-size: 15pt; font-weight: bold;')
         self.unit = label('', 'Muted')
         row.addWidget(self.value)
         row.addWidget(self.unit, 0, Qt.AlignBottom)
@@ -41,7 +41,7 @@ class StatTile(QFrame):
 
     def set(self, value: str, unit: str, color: str) -> None:
         self.value.setText(value)
-        self.value.setStyleSheet(f'font-size: 15pt; font-weight: bold; font-family: {theme.MONO}; color: {color};')
+        self.value.setStyleSheet(f'font-size: 15pt; font-weight: bold; color: {color};')
         self.unit.setText(unit)
 
 

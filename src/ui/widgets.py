@@ -113,7 +113,7 @@ class Chip(QWidget):
             fg = theme.text_on(c)
         else:
             p.setPen(QPen(c, 1.2))
-            p.setBrush(theme.mix(c, theme.PANEL, 0.82))
+            p.setBrush(theme.mix(c, '#ffffff', 0.88))
             fg = theme.mix(c, theme.TEXT, 0.35)
         p.drawRoundedRect(r, r.height() / 2, r.height() / 2)
         p.setPen(fg)
