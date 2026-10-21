@@ -1,0 +1,10 @@
+# 빌드 결과·실행 데이터
+app/
+build/
+data/
+*.lnk
+*.zip
+# 파이썬
+__pycache__/
+*.pyc
+.pytest_cache/
