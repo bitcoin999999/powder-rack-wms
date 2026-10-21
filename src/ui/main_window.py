@@ -419,7 +419,7 @@ class MainWindow(QMainWindow):
             wall, payload = self._notices[-1]
             lvl = payload.get('level', 'info')
             color = theme.LEVEL_COLOR.get(lvl, theme.ACCENT)
-            text_color = theme.ERROR if lvl == 'error' else '#8a5d0b' if lvl == 'warn' else theme.TEXT
+            text_color = theme.ERROR if lvl == 'error' else theme.WARN if lvl == 'warn' else theme.TEXT
             stamp = time.strftime('%H:%M:%S', time.localtime(wall))
             self.notice_label.setText(f'<span style="color:{color}; font-size:11pt;">●</span>&nbsp; '
                                       f'<span style="color:{theme.TEXT_3};">{stamp}</span>&nbsp; '

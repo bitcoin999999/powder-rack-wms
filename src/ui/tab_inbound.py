@@ -55,10 +55,10 @@ class ConveyorStrip(QWidget):
         right_w = fm.horizontalAdvance('도크 (AMR)') + 18
         belt = QRectF(left_w, 8, w - left_w - right_w, h - 16)
         # 벨트
-        p.setPen(QPen(theme.qc('#9aa8b0'), 1))
-        p.setBrush(theme.qc('#e4e9ec'))
+        p.setPen(QPen(theme.qc(theme.TEXT_3), 1))
+        p.setBrush(theme.qc(theme.MUTED_FILL))
         p.drawRoundedRect(belt, 5, 5)
-        p.setPen(QPen(theme.qc('#cfd8dd'), 1))
+        p.setPen(QPen(theme.qc(theme.BORDER), 1))
         x = belt.left() + 6
         while x < belt.right() - 3:
             p.drawLine(int(x), int(belt.top() + 3), int(x), int(belt.bottom() - 3))
@@ -113,17 +113,17 @@ class ConveyorStrip(QWidget):
                 # 순번
                 if pos == 0:
                     p.setPen(Qt.NoPen)
-                    p.setBrush(theme.qc(theme.HEADER))
+                    p.setBrush(theme.qc(theme.ACCENT))
                     tag = QRectF(r.right() - 17, r.top() - 4, 20, 14)
                     p.drawRoundedRect(tag, 4, 4)
                     nf = QFont(base)
                     nf.setPixelSize(9)
                     nf.setBold(True)
                     p.setFont(nf)
-                    p.setPen(QColor('#ffffff'))
+                    p.setPen(QColor('#000000'))
                     p.drawText(tag, Qt.AlignCenter, '앞')
             else:
-                pen = QPen(theme.qc('#bcc7cd'), 1, Qt.DashLine)
+                pen = QPen(theme.qc(theme.BORDER_STRONG), 1, Qt.DashLine)
                 p.setPen(pen)
                 p.setBrush(Qt.NoBrush)
                 p.drawRoundedRect(r, 4, 4)
@@ -293,7 +293,7 @@ class InboundTab(QWidget):
             color = theme.TEXT_2
         elif ob.line_stopped:
             text = f'오버브릿지: 라인 정지 (컨베이어 만재) · 남은 {ob.remaining}박스'
-            color = '#9a6b12'
+            color = theme.WARN
         else:
             nxt = ob.next_in
             text = f'오버브릿지: 출고 중 · 다음 박스 {int(nxt) + 1 if nxt is not None else "-"}초 · 남은 {ob.remaining}박스'

@@ -16,8 +16,8 @@ from .table import Row, RowTable
 from .util import compact_ts, info, run_action
 from .widgets import button, label
 
-KIND_COLOR = {'STORE': theme.ACCENT_DARK, 'OUT': '#2f74d6', 'ERROR': theme.ERROR, 'CORRECT': '#9a6b12',
-              'BLOCK': theme.TEXT_2, 'UNBLOCK': theme.TEXT_2, 'MASTER': '#6b4fa0', 'CONFIG': '#6b4fa0'}
+KIND_COLOR = {'STORE': theme.ACCENT_DARK, 'OUT': '#3d84e6', 'ERROR': theme.ERROR, 'CORRECT': theme.WARN,
+              'BLOCK': theme.TEXT_2, 'UNBLOCK': theme.TEXT_2, 'MASTER': '#b38cff', 'CONFIG': '#b38cff'}
 LIMIT = 1000
 TEXT_SCAN = 20000     # 글자 검색 때 훑어볼 최근 이벤트 수
 

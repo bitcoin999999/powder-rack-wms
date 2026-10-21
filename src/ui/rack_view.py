@@ -165,15 +165,15 @@ def _first_fit(font: QFont, options: list[str], max_w: int) -> str:
     return fm.elidedText(options[-1], Qt.ElideRight, max_w)
 
 
-_HATCH = QBrush(theme.qc('#c3ccd2'), Qt.BDiagPattern)
-_DIM = QColor(238, 242, 244, 196)
+_HATCH = QBrush(theme.qc('#3a3f45'), Qt.BDiagPattern)
+_DIM = QColor(0, 0, 0, 200)
 
 
 def tooltip_html(model: RackModel, sid: str) -> str:
     s, b = model.cells[sid]
     face_label = FACE_LABEL.get(s.face, s.face)
     lines = [f'<b style="font-size:11pt">{sid}</b> &nbsp; {SLOT_STATE_LABEL.get(s.state.value, s.state.value)}',
-             f'<span style="color:#9fb4bf">{face_label} {s.col}열 {s.tier}단</span>']
+             f'<span style="color:#aaa49b">{face_label} {s.col}열 {s.tier}단</span>']
     if b is not None:
         g = model.grades.get(b.grade)
         gdesc = f' ({g.iso_class} · {g.kind} · {html.escape(g.description)})' if g else ''
@@ -193,7 +193,7 @@ def tooltip_html(model: RackModel, sid: str) -> str:
     elif s.state == SlotState.BLOCKED:
         lines.append(f'사유 {html.escape(s.blocked_reason or "-")}')
     if s.updated_at:
-        lines.append(f'<span style="color:#9fb4bf">마지막 변경 {s.updated_at}</span>')
+        lines.append(f'<span style="color:#aaa49b">마지막 변경 {s.updated_at}</span>')
     return '<br>'.join(lines)
 
 
@@ -386,7 +386,7 @@ class RackFaceView(QWidget):
             p.setClipRect(QRectF(rf.x(), rf.y(), strip, rf.height()))
             p.drawRoundedRect(rf, radius, radius)
             p.setClipping(False)
-            p.setPen(QPen(theme.mix(color, '#ffffff', 0.45), 1))
+            p.setPen(QPen(theme.mix(color, theme.CELL_BASE, 0.3), 1))
             p.setBrush(Qt.NoBrush)
             p.drawRoundedRect(rf.adjusted(0.5, 0.5, -0.5, -0.5), radius, radius)
 
@@ -433,14 +433,15 @@ class RackFaceView(QWidget):
             d = max(16, min(21, int(h * 0.3)))
             if rank is not None:
                 rr = QRectF(rect.right() - pad - d + 3, rect.bottom() - pad - d + 3, d, d)
-                p.setPen(QPen(QColor('#ffffff'), 1.5))
-                p.setBrush(theme.qc(theme.ACCENT if rank == 1 else theme.HEADER))
+                badge_bg = theme.qc(theme.ACCENT if rank == 1 else theme.BORDER_STRONG)
+                p.setPen(QPen(theme.qc(theme.BG), 1.5))
+                p.setBrush(badge_bg)
                 p.drawEllipse(rr)
                 nf = QFont(self._base)
                 nf.setBold(True)
                 nf.setPixelSize(max(9, int(d * 0.55)) if rank < 100 else max(8, int(d * 0.42)))
                 p.setFont(nf)
-                p.setPen(QColor('#ffffff'))
+                p.setPen(theme.text_on(badge_bg))
                 p.drawText(rr, Qt.AlignCenter, str(rank))
                 p.setFont(sf)
             # 셋째 줄: 잔량 박스 표시 (칸이 충분히 클 때) — 순번 동그라미와 겹치지 않게 폭을 줄인다
@@ -460,7 +461,7 @@ class RackFaceView(QWidget):
                 pen = QPen(theme.qc(theme.ACCENT), 1.6, Qt.DashLine)
                 pen.setDashPattern([4, 3])
                 p.setPen(pen)
-                p.setBrush(QColor('#ffffff'))
+                p.setBrush(theme.qc(theme.RESERVED_CELL))
                 p.drawRoundedRect(rf.adjusted(1, 1, -1, -1), radius, radius)
             left = rect.x() + pad
             avail = w - 2 * pad
@@ -468,7 +469,7 @@ class RackFaceView(QWidget):
             code_px = max(11, min(17, int(h * 0.22), int(w * 0.18)))
             cf = _fit_font(self._base, code, code_px, max(10, avail), bold=True, min_px=9)
             p.setFont(cf)
-            p.setPen(theme.qc(theme.TEXT_2) if not needs else theme.qc('#8f3a3a'))
+            p.setPen(theme.qc(theme.TEXT_2) if not needs else theme.qc(theme.ERROR))
             code_h = QFontMetrics(cf).height()
             top = rect.y() + pad - 2
             p.drawText(QRect(left, top, avail + 2, code_h), Qt.AlignLeft | Qt.AlignVCenter, code)
@@ -491,7 +492,7 @@ class RackFaceView(QWidget):
 
         elif state == SlotState.BLOCKED:
             p.setPen(QPen(theme.qc(theme.BORDER_STRONG), 1))
-            p.setBrush(theme.qc('#f1f3f5'))
+            p.setBrush(theme.qc(theme.EMPTY_CELL))
             p.drawRoundedRect(rf.adjusted(0.5, 0.5, -0.5, -0.5), radius, radius)
             p.setBrush(_HATCH)
             p.setPen(Qt.NoPen)
@@ -513,7 +514,7 @@ class RackFaceView(QWidget):
             tw = max(fm.horizontalAdvance(label_text), fm2.horizontalAdvance(fm2.elidedText(reason, Qt.ElideRight, avail))
                      if reason else 0)
             back = QRectF(rect.x() + (w - tw) / 2 - 4, y - 1, tw + 8, total_h + 2)
-            p.setBrush(QColor(241, 243, 245, 235))
+            p.setBrush(theme.qc(theme.EMPTY_CELL, 235))
             p.drawRoundedRect(back, 3, 3)
             p.setFont(tf)
             p.setPen(theme.qc(theme.TEXT_2))
@@ -544,7 +545,7 @@ class RackFaceView(QWidget):
             p.drawRoundedRect(rf.adjusted(1, 1, -1, -1), radius, radius)
 
         if sid == m.selected:
-            p.setPen(QPen(theme.qc(theme.HEADER), 3))
+            p.setPen(QPen(theme.qc(theme.SELECT_OUTLINE), 2.5))
             p.setBrush(Qt.NoBrush)
             p.drawRoundedRect(rf.adjusted(-0.5, -0.5, 0.5, 0.5), radius + 1, radius + 1)
         elif sid == self.hover:

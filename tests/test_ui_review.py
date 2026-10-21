@@ -343,7 +343,7 @@ def test_cell_text_contrast_on_every_sample_grade(qapp):
         assert _contrast(theme.TEXT, bg) >= 7.0, g.code
         assert _contrast(theme.CELL_SUB, bg) >= 4.5, g.code
         assert _contrast(theme.RESIDUAL, bg) >= 4.5, g.code
-    assert _contrast(theme.TEXT_2, '#ffffff') >= 4.5          # 예약 칸 재종 글자
+    assert _contrast(theme.TEXT_2, theme.RESERVED_CELL) >= 4.5   # 예약 칸 재종 글자
     assert _contrast(theme.EMPTY_ID, theme.EMPTY_CELL) >= 2.5  # 빈 칸 번호 (흐리지만 읽힘)
 
 
