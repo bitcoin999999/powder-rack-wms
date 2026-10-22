@@ -48,6 +48,7 @@ import csv
 import logging
 import math
 import random
+import zlib
 import shutil
 import time
 from collections import Counter, deque
@@ -76,6 +77,9 @@ MAX_SIM_SPEED = 1000.0
 STUCK_ORDER_S = 1800.0      # 입고 작업이 이보다 오래 안 끝나면 자가 시험 위반 (시뮬레이션 s)
 DRIVER_KINDS = ('sim', 'vda5050', 'tcp_json')
 SCAN_DEBOUNCE_TEXT = '같은 스캔이 2초 안에 다시 들어와 무시했습니다'
+# 바코드로 자동 추가되는 재종 색 (서로 잘 구분되고 칸 글자가 읽히는 중간 밝기)
+AUTO_GRADE_COLORS = ['#5b8def', '#e6a23c', '#4fb37b', '#d9534f', '#8e6bd6', '#2bb3c0', '#c97b3a', '#7a9a2e',
+                     '#d46aa8', '#3f7fbf', '#b5a33a', '#6d8ea0', '#e07a5f', '#5aa469', '#9c6644', '#4a6fa5']
 SCAN_LOG_NAME = '스캔기록.csv'   # data 폴더. 현장 시험에서 바코드에 실제로 무엇이 들어 있는지 보려고 모든 스캔을 남긴다
 _CTRL_NAMES = {'\t': '<TAB>', '\r': '<CR>', '\n': '<LF>', '\x1d': '<GS>', '\x1e': '<RS>', '\x04': '<EOT>'}
 
@@ -96,6 +100,17 @@ def scan_visible(text: str) -> str:
 def _csv_cell(text: str) -> str:
     """엑셀이 수식으로 실행하지 않게 = + - @ 로 시작하면 앞에 ' 를 붙인다."""
     return "'" + text if text[:1] in ('=', '+', '-', '@') else text
+
+
+def _color_dist(a: str, b: str) -> float:
+    """'#RRGGBB' 두 색의 RGB 거리 (0 = 같은 색). 형식이 이상한 색은 무시한다 (무한히 먼 것으로 침)."""
+    try:
+        ca = [int(a[i:i + 2], 16) for i in (1, 3, 5)]
+        cb = [int(b[i:i + 2], 16) for i in (1, 3, 5)]
+    except (TypeError, ValueError):
+        return float('inf')
+    return math.dist(ca, cb)
+
 
 _DOCK = 'DOCK'
 _ZONES = ('DOCK', 'CHARGER')
@@ -795,11 +810,57 @@ class Controller:
         if key and last is not None and last[0] == key and now - last[1] < SCAN_DEBOUNCE_S:
             raise InventoryError(SCAN_DEBOUNCE_TEXT)
         result = parse_scan(text, {g.code for g in self.inventory.grades()})
-        box = self.inventory.register_arrival(result.grade, result.lot,
-                                              15.0 if result.weight_kg is None else result.weight_kg,
-                                              box_id=result.box_id, note='스캔')
+        weight = 15.0 if result.weight_kg is None else result.weight_kg
+        if result.label:
+            result.box_id = self._label_box_id(result)
+            if result.new_grade:
+                # 컨베이어 만재·박스 중복이면 재종을 추가하기 전에 거절 — 거절된 스캔은 재종표도 바꾸지 않는다
+                self.inventory.check_arrival(result.box_id)
+                self._auto_add_grade(result.grade)
+            bags = max(1, min(99, math.ceil(weight / 5.0 - 1e-9)))     # 5 kg 소포장 기준 (15 kg = 3봉)
+            again = '' if result.box_id == f'{result.lot}-{result.seq:03d}' else ' · 도착 취소 뒤 다시 등록'
+            box = self.inventory.register_arrival(result.grade, result.lot, weight, box_id=result.box_id, bags=bags,
+                                                  note=f'라벨 바코드 {result.raw} · 생산순서 {result.seq}{again}')
+        else:
+            box = self.inventory.register_arrival(result.grade, result.lot, weight, box_id=result.box_id, note='스캔')
         self._last_scan = (key, now)   # 받아들인 스캔만 기억 (실패한 스캔은 바로 다시 읽어도 된다)
         return box
+
+    def _label_box_id(self, result) -> str:
+        """라벨 박스 ID (로트-생산순서). 같은 라벨 박스가 이미 있으면 그 박스가 지금 어디 있는지 알려 주고 거절한다.
+        단, 남은 기록이 도착 취소(적재된 적 없이 OUT)뿐이면 실물 박스가 다시 온 것 → '-2', '-3' … 을 붙여 받는다
+        (박스 기록은 지우지 않으므로 그대로 두면 잘못 찍고 취소한 라벨은 영영 스캔할 수 없다)."""
+        base = bid = result.box_id
+        for n in range(2, 100):
+            try:
+                old = self.inventory.box(bid)
+            except InventoryError:
+                return bid
+            if old.state == BoxState.OUT and not old.stored_at:      # 도착 취소된 기록 → 다음 번호
+                bid = f'{base}-{n}'
+                continue
+            if old.state == BoxState.STORED:
+                where = f'적재대 {old.slot_id} 칸에 있습니다'
+            elif old.state == BoxState.ON_AMR:
+                where = f'AMR {old.robot} 위에 있습니다'
+            elif old.state == BoxState.CONVEYOR:
+                where = '컨베이어 위에 있습니다'
+            else:
+                where = '이미 출고된 박스입니다' + (f' ({old.out_at})' if old.out_at else '')
+            raise InventoryError(f'이미 등록된 라벨입니다: 박스 {old.id} ({old.grade} · 로트 {old.lot} · '
+                                 f'생산순서 {result.seq}) — {where}')
+        raise InventoryError(f'같은 라벨을 너무 여러 번 도착 취소했습니다: {base} — 이력을 확인하세요')
+
+    def _auto_add_grade(self, code: str) -> None:
+        """라벨 바코드에서 처음 본 재종을 재종표에 추가 (ISO '-' 미분류). 기준정보 탭에서 고칠 수 있다.
+        색: 칸은 색으로 재종을 가르므로, 이미 있는 재종 색(샘플 포함)과 가장 멀리 떨어진 후보 색 (같으면 코드별 순서)."""
+        from core.models import Grade
+        used = [g.color for g in self.inventory.grades()]
+        start = zlib.crc32(code.encode('utf-8')) % len(AUTO_GRADE_COLORS)
+        colors = AUTO_GRADE_COLORS[start:] + AUTO_GRADE_COLORS[:start]
+        color = max(colors, key=lambda c: min((_color_dist(c, u) for u in used), default=float('inf')))
+        self.inventory.upsert_grade(Grade(code, '-', '', '완분', '라벨 바코드에서 자동 추가 — 기준정보에서 확인', color))
+        self._notice(f'새 재종 {code} 을(를) 재종표에 자동 추가했습니다 (기준정보 탭에서 색·설명을 고칠 수 있음)')
 
     def add_sample_box(self, grade: str | None = None) -> Box:
         """샘플 박스 도착 (재종 없으면 사용 중인 재종 중 난수)."""

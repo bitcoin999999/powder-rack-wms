@@ -172,7 +172,9 @@ class MasterTab(QWidget):
                 fg.update({0: theme.TEXT_3, 4: theme.TEXT_3})
             rows.append(Row(g.code, [g.code, g.iso_class, g.iso_range, g.kind, g.description, g.color,
                                      '사용' if g.active else '중지'], fg=fg, swatch={5: g.color}, bold={0}, data=g,
-                            tip=f'{g.code} · 재고 {stock}박스'))
+                            tip=f'{g.code} · 재고 {stock}박스'
+                                + (' · ISO 미분류 (라벨 바코드로 자동 추가 — [수정]에서 분류를 고르세요)'
+                                   if g.iso_class == '-' else '')))
         self.table.model_.set_rows(rows)
         n_active = sum(1 for g in grades if g.active)
         self.grade_count.setText(f'{len(grades)}종 · 사용 {n_active}')

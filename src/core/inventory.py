@@ -79,11 +79,26 @@ class LotOnlyScan(InventoryError):
         self.lot = lot
 
 
+# 완분 라벨 바코드 (MFC 출고 라벨, 현장 사진 3종으로 확인): 앞 2자리 + 로트 8 + 중량(g) 6 + 생산순서 3 + 재종
+#   0026080160015000001KP320 → 로트 26080160 · 15,000 g · 생산순서 1 · KP320
+#   0026080140015000010A30   → 로트 26080140 · 15,000 g · 생산순서 10 · A30
+#   0020080030002000017KU10  → 로트 20080030 ·  2,000 g · 생산순서 17 · KU10
+LABEL_RE = re.compile(r'^(\d{2})(\d{8})(\d{6})(\d{3})([A-Z][A-Z0-9_.\-]{0,23})$', re.ASCII)   # 전각 숫자 등은 아님
+LABEL_DIGITS = 19                                       # 재종 앞 숫자 자리수 (00 + 로트 8 + 중량 6 + 생산순서 3)
+_AIM_ID_RE = re.compile(r'^\][A-Za-z][0-9A-Za-z]')     # 리더가 앞에 붙이는 바코드 종류 표시 (예: ]C1)
+_ASCII_DIGITS_RE = re.compile(r'^[0-9]+$')
+_LABEL_LIKE_RE = re.compile(r'^([0-9]{15,})[A-Z]')     # 숫자 15자리 이상 + 영문 = 라벨을 찍었는데 자리수가 틀림
+
+
 class ScanResult:
-    """스캔 문자열 해석 결과."""
+    """스캔 문자열 해석 결과. label=True 면 완분 라벨 바코드 (seq = 생산순서, new_grade = 재종표에 없는 재종)."""
 
     def __init__(self, grade: str, lot: str | None = None, weight_kg: float | None = None, box_id: str | None = None):
         self.grade, self.lot, self.weight_kg, self.box_id = grade, lot, weight_kg, box_id
+        self.label = False
+        self.seq: int | None = None
+        self.new_grade = False
+        self.raw = ''
 
     def __repr__(self) -> str:
         return f'ScanResult(grade={self.grade!r}, lot={self.lot!r}, weight_kg={self.weight_kg!r}, box_id={self.box_id!r})'
@@ -156,6 +171,47 @@ def _sv(x: object) -> str:
 
 
 # ---------------------------------------------------------------- 스캔
+def _strip_reader_noise(text: str) -> str:
+    """리더 잡음 정리: 제어문자(탭·CR·LF·GS…)는 빈칸으로 바꾸고 앞뒤 빈칸과 앞의 리더 표시(]C1 등)를 뗀다."""
+    t = ''.join(ch if ch.isprintable() else ' ' for ch in text).strip()
+    return _AIM_ID_RE.sub('', t, count=1).strip()
+
+
+def _label_candidate(text: str) -> tuple[str, list[str]]:
+    """라벨 후보 (붙인 글자, 그 뒤에 남은 덩어리). 빈칸은 숫자 덩어리 사이에만 허용한다
+    ('00 26080160 015000 001 KP320' — 사람이 띄어 친 경우). 첫 숫자 아닌 덩어리(재종으로 끝남)까지가 라벨이다."""
+    tokens = _strip_reader_noise(text).upper().split()
+    if not tokens:
+        return '', []
+    k = next((i for i, t in enumerate(tokens) if not _ASCII_DIGITS_RE.match(t)), len(tokens) - 1)
+    return ''.join(tokens[:k + 1]), tokens[k + 1:]
+
+
+def parse_label(text: str, known_grades: set[str]) -> ScanResult | None:
+    """완분 라벨 바코드면 해석, 아니면 None. 박스 ID = '로트-생산순서' (예: 26080160-001).
+    재종표에 없는 재종이어도 거절하지 않고 new_grade=True 로 돌려준다 (Controller 가 자동 추가).
+
+    재종 뒤에 다른 글자가 붙으면(탭·GS 뒤 다른 칸, 라벨 두 장) 재종 코드에 이어 붙이지 않고 InventoryError —
+    'KP32020261020' 같은 엉터리 재종이 재종표에 자동 추가되지 않게. 중량 0·100 kg 초과도 InventoryError."""
+    if not isinstance(text, str):
+        return None
+    compact, rest = _label_candidate(text)
+    m = LABEL_RE.match(compact)
+    if not m:
+        return None
+    if rest:
+        raise InventoryError(f'라벨 바코드 뒤에 다른 글자가 붙어 있습니다: {" ".join(rest)} — '
+                             f'라벨 바코드 하나만 다시 찍어 주세요 (라벨 {compact})')
+    _prefix, lot, grams, seq, grade = m.groups()
+    if int(grams) <= 0:
+        raise InventoryError(f'바코드의 중량이 0 입니다: {compact}')
+    weight = _check_weight(int(grams) / 1000.0)
+    lookup = {g.strip().upper(): g for g in known_grades}
+    res = ScanResult(lookup.get(grade, grade), lot, weight, f'{lot}-{seq}')
+    res.label, res.seq, res.new_grade, res.raw = True, int(seq), grade not in lookup, compact
+    return res
+
+
 def parse_scan(text: str, known_grades: set[str]) -> ScanResult:
     """바코드/RFID 리더 입력 해석. 허용 형식 (공백·쉼표·세미콜론·| 구분, 대소문자 무시):
       'PC9030'                         → 재종만 (로트 자동)
@@ -163,14 +219,29 @@ def parse_scan(text: str, known_grades: set[str]) -> ScanResult:
       'PC9030 L2610-PC9030-0012'       → 재종 + 로트
       'PC9030,L2610-0012,14.2'         → 재종 + 로트 + 중량(kg)
       'BOX:W261020-0007;PC9030;L…;15'  → 박스 ID 지정 + 재종 + 로트 + 중량
+      '0026080160015000001KP320'       → 완분 라벨 바코드 (parse_label: 로트·중량·생산순서·재종)
     재종이 known_grades 에 없으면 InventoryError('등록되지 않은 재종: …').
 
     보충 규칙: 재종 뒤 토큰이 하나뿐일 때 숫자만 LOT_MIN_DIGITS(6)자리 이상이면 로트, 그보다 짧은 숫자(끝에 KG 허용)면
     중량으로 본다 ('PC9030 0001015661578' → 로트, 'PC9030 14.2' → 중량).
-    'BOX: W…' 처럼 콜론 뒤를 띄어 써도 된다. 결과의 로트·박스 ID 는 대문자."""
+    'BOX: W…' 처럼 콜론 뒤를 띄어 써도 된다. 결과의 로트·박스 ID 는 대문자.
+    리더가 앞에 붙이는 바코드 종류 표시(]C1 등)는 모든 형식에서 뗀다. 숫자 15자리 이상 + 영문인데 라벨 형식(19자리)이
+    아니면 '라벨 바코드의 숫자 자리수가 맞지 않습니다' InventoryError."""
     if not isinstance(text, str) or not text.strip():
         raise InventoryError('스캔 내용이 비어 있습니다.')
-    raw = text.strip()
+    label = parse_label(text, known_grades)
+    if label is not None:
+        return label
+    lookup = {g.strip().upper(): g for g in known_grades}
+    cand, _rest = _label_candidate(text)
+    lead = _LABEL_LIKE_RE.match(cand)
+    if lead and cand not in lookup:      # 라벨을 찍었는데 자리수가 틀림 → '등록되지 않은 재종: 0026…' 대신
+        raise InventoryError(f'라벨 바코드의 숫자 자리수가 맞지 않습니다: {len(lead.group(1))}자리 '
+                             f'({LABEL_DIGITS}자리여야 함: 00 + 로트 8 + 중량 g 6 + 생산순서 3, 그 뒤 재종) — '
+                             f'다시 찍어 주세요. 읽힌 값 {cand}')
+    raw = _AIM_ID_RE.sub('', text.strip(), count=1).strip()     # 리더 표시(]C1)는 라벨과 같이 뗀다
+    if not raw:
+        raise InventoryError('스캔 내용이 비어 있습니다.')
     tokens = [t for t in _SCAN_SEP_RE.split(raw.upper()) if t]
     box_id: str | None = None
     if tokens and tokens[0].startswith('BOX:'):
@@ -184,8 +255,11 @@ def parse_scan(text: str, known_grades: set[str]) -> ScanResult:
         box_id = rest
     if not tokens:
         raise InventoryError('스캔에 재종이 없습니다.')
-    lookup = {g.strip().upper(): g for g in known_grades}
     grade_tok = tokens.pop(0)
+    if grade_tok not in lookup and not tokens and box_id is None and grade_tok.isascii() \
+            and grade_tok.isdigit() and len(grade_tok) == 19:
+        # 라벨 바코드의 숫자 부분(00 + 로트 8 + 중량 6 + 생산순서 3)만 들어옴 — 끝의 재종이 안 읽혔다
+        raise InventoryError(f'라벨 바코드 끝의 재종이 읽히지 않았습니다: {grade_tok} — 라벨을 다시 찍어 주세요')
     if grade_tok not in lookup and not tokens and box_id is None \
             and grade_tok.isdigit() and LOT_MIN_DIGITS <= len(grade_tok) <= MAX_LOT_LEN:
         raise LotOnlyScan(grade_tok)          # 숫자 로트만 찍힘 (예: 0001015661578)
@@ -621,6 +695,20 @@ class InventoryService:
         """W{yymmdd}-{seq4}, 그날 순번. 미리보기 — 순번을 소비하지 않는다 (register_arrival 이 소비)."""
         return self._peek_box_id(self._conn(), self._clock())[2]
 
+    def _check_conveyor_room(self, conn: sqlite3.Connection) -> None:
+        n, cap = self._conveyor_count(conn), int(self._config.conveyor_capacity)
+        if n >= cap:
+            raise ConveyorFull(f'컨베이어가 가득 찼습니다 ({n}/{cap}). 적재가 끝날 때까지 기다리세요.')
+
+    def check_arrival(self, box_id: str | None = None) -> None:
+        """register_arrival 이 재종과 관계없이 거절할 이유가 있으면 같은 오류를 미리 던진다 (컨베이어 만재 → ConveyorFull,
+        박스 ID 형식·중복 → InventoryError). 아무것도 바꾸지 않는다 — 라벨 스캔이 재종을 자동 추가하기 전에 쓴다
+        (거절될 스캔이 재종표만 바꿔 놓지 않게)."""
+        conn = self._conn()
+        self._check_conveyor_room(conn)
+        if isinstance(box_id, str) and box_id.strip():
+            self._new_box_id(conn, self._clock(), box_id)
+
     def register_arrival(self, grade: str, lot: str | None = None, weight_kg: float = 15.0, box_id: str | None = None,
                          bags: int = 3, note: str = '') -> Box:
         """컨베이어에 박스 도착. 가득이면 ConveyorFull, 재종 미등록·사용중지면 InventoryError, 박스 ID 중복이면 InventoryError.
@@ -636,9 +724,7 @@ class InventoryService:
                 raise InventoryError(f'등록되지 않은 재종: {code}')
             if not g['active']:
                 raise InventoryError(f'사용중지된 재종입니다: {code}')
-            n, cap = self._conveyor_count(conn), int(self._config.conveyor_capacity)
-            if n >= cap:
-                raise ConveyorFull(f'컨베이어가 가득 찼습니다 ({n}/{cap}). 적재가 끝날 때까지 기다리세요.')
+            self._check_conveyor_room(conn)
             bid = self._new_box_id(conn, ch.now, box_id)
             lot_s = self._take_lot(ch.now, code) if lot is None or (isinstance(lot, str) and not lot.strip()) \
                 else _clean_lot(lot)
@@ -1000,7 +1086,8 @@ class InventoryService:
                 conn.execute('INSERT INTO grades(code, iso_class, iso_range, kind, description, color, active, '
                              'sort_order) VALUES (?,?,?,?,?,?,?,?)', (code,) + fields + (order,))
             what = '재종 수정' if exists else '재종 추가'
-            ch.event('MASTER', grade=code, detail=f'{what}: {code} ({iso}, {fields[1]}, {fields[2]})'
+            parts = ['ISO 미분류' if iso == '-' else iso] + [x for x in (fields[1], fields[2]) if x]
+            ch.event('MASTER', grade=code, detail=f'{what}: {code} ({", ".join(parts)})'
                                                  + ('' if grade.active else ' · 사용중지'))
             ch.payload = {'grade': code, 'detail': what}
 

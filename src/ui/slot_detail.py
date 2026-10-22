@@ -225,7 +225,7 @@ class SlotDetailPanel(Panel):
         if box is not None:
             g = self.ctrl.inventory.grade(box.grade)
             grade_color = g.color if g else '#9aa5ab'
-            gtext = box.grade + (f'   {g.iso_class} · {g.kind} · {g.description}' if g else '')
+            gtext = box.grade + (f'   {theme.iso_text(g.iso_class)} · {g.kind} · {g.description}' if g else '')
             rows += [('박스', box.id), ('재종', gtext), ('로트', box.lot or '-'),
                      ('중량', f'{box.weight_kg:g} kg · {box.bags}봉' + ('  (잔량)' if box.weight_kg < 15 else ''))]
             if slot.state == SlotState.OCCUPIED:

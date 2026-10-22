@@ -157,7 +157,7 @@ class BoxEntryDialog(_Base):
         self.grade_combo = QComboBox()
         self.grade_combo.setMaxVisibleItems(20)
         for g in grades:
-            self.grade_combo.addItem(color_icon(g.color), f'{g.code}   {g.iso_class} · {g.kind}'
+            self.grade_combo.addItem(color_icon(g.color), f'{g.code}   {theme.iso_text(g.iso_class)} · {g.kind}'
                                      + ('' if g.active else ' (사용중지)'), g.code)
         if grade:
             i = self.grade_combo.findData(grade)
@@ -220,7 +220,7 @@ class GradeDialog(_Base):
         self.code.setEnabled(not self.editing)
         self.iso = QComboBox()
         for c in ISO_CLASSES:
-            self.iso.addItem(c, c)
+            self.iso.addItem(theme.iso_text(c), c)
         self.range = QLineEdit(grade.iso_range if grade else '')
         self.range.setPlaceholderText('예) M20–M35')
         self.kind = QComboBox()

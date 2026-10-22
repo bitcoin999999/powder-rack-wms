@@ -20,7 +20,9 @@ from .table import Row, RowTable
 from .util import fmt_kg, lot_tail, run_action, show_unexpected, warn
 from .widgets import ElidedLabel, button, label, latin_input
 
-SCAN_HINT = '형식: 재종 · 재종 로트 · 재종,로트,중량 · BOX:박스ID;재종;로트;중량'
+SCAN_HINT = '형식: 완분 라벨 바코드 · 재종 · 재종 로트 · 재종,로트,중량 · BOX:박스ID;재종;로트;중량'
+LABEL_HINT = ('완분 라벨 바코드 (재종·중량 자동): 00 + 로트 8 + 중량 g 6 + 생산순서 3 + 재종\n'
+              '예) 0026080160015000001KP320 → 로트 26080160 · 15 kg · 생산순서 1 · KP320 (박스 26080160-001)')
 
 
 class ConveyorStrip(QWidget):
@@ -172,7 +174,8 @@ class InboundTab(QWidget):
         self.result = label(SCAN_HINT, 'Faint')
         self.result.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self.result.setMinimumHeight(self.fontMetrics().height() + 4)
-        self.result.setToolTip(SCAN_HINT + '\n예) PC9030   ·   PC9030 0001015661578   ·   PC9030,0001015661578,14.2')
+        self.result.setToolTip(SCAN_HINT + '\n' + LABEL_HINT
+                               + '\n예) PC9030   ·   PC9030 0001015661578   ·   PC9030,0001015661578,14.2')
         lay.addWidget(self.result)
 
         # 수동 입력

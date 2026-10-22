@@ -178,7 +178,7 @@ class OutboundTab(QWidget):
                            fg={0: theme.ACCENT_DARK} if i == 1 else {}))
         self.table.model_.set_rows(out)
         g = self.ctrl.inventory.grade(code)
-        name = code + (f' ({g.iso_class} · {g.kind})' if g else '')
+        name = code + (f' ({theme.iso_text(g.iso_class)} · {g.kind})' if g else '')
         if rows:
             first = rows[0]
             total = sum(r.box.weight_kg for r in rows)

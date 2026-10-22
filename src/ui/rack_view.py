@@ -176,7 +176,7 @@ def tooltip_html(model: RackModel, sid: str) -> str:
              f'<span style="color:#9fb4bf">{face_label} {s.col}열 {s.tier}단</span>']
     if b is not None:
         g = model.grades.get(b.grade)
-        gdesc = f' ({g.iso_class} · {g.kind} · {html.escape(g.description)})' if g else ''
+        gdesc = f' ({theme.iso_text(g.iso_class)} · {html.escape(g.kind)} · {html.escape(g.description)})' if g else ''
         lines += [f'박스 {html.escape(b.id)}', f'재종 <b>{html.escape(b.grade)}</b>{gdesc}',
                   f'로트 {html.escape(b.lot or "-")}', f'중량 {b.weight_kg:g} kg' + (' (잔량)' if b.weight_kg < 15 else '')]
         if s.state == SlotState.OCCUPIED:
@@ -396,7 +396,7 @@ class RackFaceView(QWidget):
             badge = max(13, min(17, int(h * 0.2)))
             rank = m.ranks.get(sid) if m.search_grade else None
             # ISO 분류 글자 (오른쪽 위)
-            if g is not None and w >= 70:
+            if g is not None and g.iso_class in theme.ISO_COLOR and w >= 70:
                 br = QRectF(rect.right() - pad - badge + 2, rect.y() + pad - 1, badge, badge)
                 ic = theme.qc(theme.ISO_COLOR.get(g.iso_class, theme.TEXT_2))
                 p.setPen(Qt.NoPen)

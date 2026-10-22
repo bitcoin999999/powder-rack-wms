@@ -19,7 +19,7 @@ class BoxState(str, Enum):
     OUT = 'OUT'              # 출고됨 (기록만 남음)
 
 
-ISO_CLASSES = ('P', 'M', 'K', 'N', 'S', 'H')
+ISO_CLASSES = ('P', 'M', 'K', 'N', 'S', 'H', '-')    # '-' = 미분류 (바코드로 자동 추가된 완분 재종)
 FACES = ('N', 'S')
 FACE_LABEL = {'N': '북면', 'S': '남면'}
 

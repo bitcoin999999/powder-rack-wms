@@ -32,6 +32,12 @@ FONT = 'Malgun Gothic'
 # ISO 513 분류 색 (재종 색과 같은 계열)
 ISO_COLOR = {'P': '#2f74d6', 'M': '#d9a400', 'K': '#d64545', 'N': '#2e9d4e', 'S': '#c8641e', 'H': '#7a7f87'}
 
+
+def iso_text(iso_class: str) -> str:
+    """ISO 분류 표시 글자. '-' 는 바코드로 자동 추가된 미분류 재종."""
+    return '미분류' if iso_class == '-' else iso_class
+
+
 # AMR 모드 색 (미니맵·카드)
 MODE_COLOR = {
     'IDLE': '#6b7d87', 'MOVING': ACCENT, 'LOADING': '#2f74d6', 'UNLOADING': '#2f74d6', 'WAITING': WARN,
